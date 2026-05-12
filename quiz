@@ -9,7 +9,23 @@
     <EditText
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/editPytanie"/>
+        android:id="@+id/editPytanie"
+        android:hint="Wpisz pytanie"/>
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/editOdpowiedz"
+        android:hint="Wpisz odpowiedź"/>
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/buttonDodaj"
+        android:text="Podaj Fiszkę"/>
+    <ListView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/listViewFiszek"
+        android:layout_weight="1"/>
 
 </LinearLayout>
 
@@ -19,7 +35,10 @@ public class fiszka {
     private String pytanie;
     private String odpowiedz;
 
-    public Fiszka(String pytanie, String odpowiedz){
+    public fiszka(String pytanie, String odpowiedz) {
+    }
+
+    public void fiszka(String pytanie, String odpowiedz){
         this.pytanie = pytanie;
         this.odpowiedz = odpowiedz;
     }
@@ -33,5 +52,79 @@ public class fiszka {
     @Override
     public String toString() {
         return "Pytanie " + pytanie + " | Odp: " + odpowiedz;
+    }
+}
+
+package com.example.quiz;
+
+import android.os.Bundle;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ListView;
+import android.widget.Toast;
+
+import androidx.activity.EdgeToEdge;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
+
+import java.nio.file.FileStore;
+import java.util.ArrayList;
+import java.util.List;
+
+public class MainActivity extends AppCompatActivity {
+
+    EditText editPytanie;
+    EditText editOdpowiedz;
+
+    Button buttonDodaj;
+    ListView listViewFiszek;
+    ArrayList<fiszka> listaFiszek;
+    ArrayAdapter<fiszka> adapter;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        EdgeToEdge.enable(this);
+        setContentView(R.layout.activity_main);
+
+        editPytanie = findViewById(R.id.editPytanie);
+        editOdpowiedz = findViewById(R.id.editOdpowiedz);
+        buttonDodaj = findViewById(R.id.buttonDodaj);
+        listViewFiszek = findViewById(R.id.listViewFiszek);
+
+        listaFiszek = new ArrayList<>();
+
+        adapter = new ArrayAdapter<>(this,
+                android.R.layout.simple_list_item_1, listaFiszek
+                );
+        listViewFiszek.setAdapter(adapter);
+
+        buttonDodaj.setOnClickListener(v -> {
+            String pytanie = editPytanie.getText().toString();
+            String odpowiedz = editOdpowiedz.getText().toString();
+
+            if(pytanie.isEmpty() || odpowiedz.isEmpty()){
+                Toast.makeText(this, "Uzupełninj wszystkie pola", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            fiszka nowaFiszka = new fiszka(pytanie, odpowiedz);
+            listaFiszek.add(nowaFiszka);
+            adapter.notifyDataSetChanged();
+
+            editPytanie.setText("");
+            editOdpowiedz.setText("");
+
+            Toast.makeText(this,"Dodano Fiszke", Toast.LENGTH_SHORT).show();
+
+        });
+
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            return insets;
+        });
     }
 }
